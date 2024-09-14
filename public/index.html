@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diet & Nutrition Assistant</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Loader styling */
+        #loader {
+            display: none;
+            border: 8px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 8px solid #ff9900;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Basic styles */
+        .step.active {
+            display: block;
+        }
+
+        .step {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mainbox">
+        <div class="boxleft">
+            <div class="navleft">
+                <div class="but">
+                    <h1>New</h1>
+                </div>
+                <P style="margin-left: 200px;font-weight: bold;color: rgb(255, 255, 255);">Health Smart AI</P>
+            </div>
+            <br>
+            <div class="tx">
+                <h1>&nbsp;&nbsp;TRUST YOUR</h1>
+                <h1>&nbsp;&nbsp;HEALTH</h1>
+                <h1>&nbsp;&nbsp;AND FITNESS</h1>
+            </div>
+            <img src="./Screenshot_2024-09-14_051831-removebg-preview.png" style="margin: -160px 0px 0px 330px;position: absolute;height: 80px;" alt="" srcset="">
+            
+            <div class="main">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="h3"><span>Health</span> VERSE</div>
+                        <div class="h1">Love Your Health.</div>
+                        <p class="p">Wellness Starts Here: Tailored Diet and Nutrition Solutions"</p>
+                        <p class="p">💉💊🩺</p>
+                    </div>
+                </div>
+            </div>
+            <div class="search">
+                &nbsp;<p>Get Started</p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;   
+                <div class="cir">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="boxright">
+            <div class="container">
+                <div class="stepper">
+                    <div class="step-container">
+                        <div class="step-indicator active">1</div>
+                        <div class="step-label">User Details</div>
+                    </div>
+                    <div class="step-container">
+                        <div class="step-indicator">2</div>
+                        <div class="step-label">Diet & Nutrition</div>
+                    </div>
+                </div>
+        
+                <!-- Step 1: User Details -->
+                <div id="step-1" class="step active">
+                    <h2>Step 1: Enter your details</h2>
+                    <input type="text" id="name" placeholder="Name" required />
+                    <input type="number" id="age" placeholder="Age" required />
+                    <input type="text" id="gender" placeholder="Gender (M/F/O)" required />
+                    <input type="number" id="weight" placeholder="Weight (kg)" required />
+                    <input type="number" id="height" placeholder="Height (cm)" required />
+                    <input type="text" id="goals" placeholder="Your goals (e.g., lose weight)" />
+                    <input type="text" id="lifestyle_habits" placeholder="Lifestyle habits (e.g., active, sedentary)" />
+                    <input type="text" id="medical_history" placeholder="Medical history (if any)" />
+                    <button id="submitStep1">Continue to next step</button>
+                </div>
+        
+                <!-- Step 2: Diet & Nutrition Query -->
+                <div id="step-2" class="step">
+                    <h2>Step 2: Ask for diet and nutrition recommendations</h2>
+                    <textarea id="query" rows="4" placeholder="Ask for diet plan, nutrition, exercise, or meditation suggestions"></textarea>
+                    <button id="submitQuery">Submit Query</button>
+                    <!-- Loader for query submission -->
+                    <div id="loader"></div>
+                </div>
+        
+                <!-- Display the response from the server -->
+                <div id="response"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('submitStep1').addEventListener('click', async function () {
+            const name = document.getElementById('name').value;
+            const age = document.getElementById('age').value;
+            const gender = document.getElementById('gender').value;
+            const weight = document.getElementById('weight').value;
+            const height = document.getElementById('height').value;
+            const goals = document.getElementById('goals').value;
+            const lifestyle_habits = document.getElementById('lifestyle_habits').value;
+            const medical_history = document.getElementById('medical_history').value;
+
+            try {
+                const response = await axios.post('/store-user', {
+                    name,
+                    age,
+                    gender,
+                    weight,
+                    height,
+                    goals,
+                    lifestyle_habits,
+                    medical_history
+                });
+                alert(response.data.message);
+
+                // Move to Step 2
+                document.getElementById('step-1').classList.remove('active');
+                document.getElementById('step-2').classList.add('active');
+                document.querySelectorAll('.step-indicator')[0].classList.remove('active');
+                document.querySelectorAll('.step-indicator')[1].classList.add('active');
+            } catch (error) {
+                console.error('Error storing user data:', error);
+                alert('Error storing user data.');
+            }
+        });
+
+        document.getElementById('submitQuery').addEventListener('click', async function () {
+            const query = document.getElementById('query').value.trim();
+
+            if (!query) {
+                document.getElementById('response').textContent = 'Please enter a query.';
+                return;
+            }
+
+            // Show loader
+            document.getElementById('loader').style.display = 'block';
+
+            try {
+                const response = await axios.post('/content', {
+                    externalUserId: 'user-123',
+                    query
+                });
+
+                if (response.data.data && response.data.data.answer) {
+                    // Extract and display the response
+                    document.getElementById('response').innerHTML = formatResponse(response.data.data.answer);
+                } else {
+                    document.getElementById('response').textContent = 'No results found for your query.';
+                }
+
+                // Hide loader
+                document.getElementById('loader').style.display = 'none';
+
+            } catch (error) {
+                console.error('Error submitting query:', error);
+                document.getElementById('response').textContent = 'Error submitting query.';
+                // Hide loader in case of error
+                document.getElementById('loader').style.display = 'none';
+            }
+        });
+
+        function formatResponse(answer) {
+            // Basic formatting logic for structured HTML
+            return answer
+                .split('\n')
+                .map(line => {
+                    if (line.startsWith('1. ')) {
+                        return `<div class="point"><div class="point-title">${line}</div><div class="point-content">`;
+                    } else if (line.startsWith('2. ')) {
+                        return `</div><div class="point-title">${line}</div><div class="point-content">`;
+                    } else {
+                        return `${line}<br>`;
+                    }
+                })
+                .join('') + '</div>';
+        }
+    </script>
+</body>
+</html>
